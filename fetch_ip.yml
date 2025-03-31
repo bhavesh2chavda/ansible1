@@ -1,0 +1,8 @@
+- name: Fetch IP from host machine
+
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Show default IP address
+      debug:
+        msg: "The IP address is {{ ansible_default_ipv4.address }}"

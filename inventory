@@ -1,2 +1,6 @@
-192.168.10.120 ansible_user=orbiwise
-40.118.242.243 ansible_user=bhavesh
+[centos]
+centos1 ansible_host=20.193.135.219 ansible_user=bhavesh
+centos2 ansible_host=20.197.41.40 ansible_user=bhavesh
+
+[ubuntu]
+ubuntu1 ansible_host=192.168.10.120 ansible_user=orbiwise

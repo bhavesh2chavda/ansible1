@@ -1,0 +1,23 @@
+---
+- name: Deploy file with dynamic IP configuration
+  hosts: all
+  gather_facts: yes
+
+  tasks:
+    - name: Set target path based on ansible_user
+      set_fact:
+        target_file_path: "/home/{{ ansible_user }}/ip.txt"
+
+    - name: Transfer file to target servers
+      copy:
+        src: /home/bhaveshchavda/ansible1/ip.txt
+        dest: "{{ target_file_path }}"
+
+    - name: Validate and update IP address in file
+      replace:
+        path: "{{ target_file_path }}"
+        regexp: '^{{ ip_pattern }}.*$'
+        replace: '{{ ip_pattern }}{{ ansible_default_ipv4.address }}'
+      vars:
+        ip_pattern: 'IP_ADDRESS='
+      when: ansible_default_ipv4.address is defined

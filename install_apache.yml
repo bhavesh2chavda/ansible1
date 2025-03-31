@@ -10,10 +10,10 @@
 
   - name: install apache2 package
     apt:
-      name: apache2
+      name: 
+         - apache2
+         - libapache2-mod-php
+         - htop
+         - cmatrix
       state: latest
-
-  - name: add php support for apache
-    apt:
-      name: libapache2-mod-php
-      state: latest
+    when: ansible_distribution == "Ubuntu"
