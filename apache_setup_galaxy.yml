@@ -1,0 +1,10 @@
+---
+- name: Setup Apache on Ubuntu
+  hosts: ubuntu
+  roles:
+    - ubuntu_apache
+
+- name: Setup Apache on RedHat
+  hosts: redhat
+  roles:
+    - redhat_apache

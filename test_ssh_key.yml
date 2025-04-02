@@ -1,0 +1,10 @@
+---
+- name: Fetch SSH authorized keys from all hosts
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Fetch the authorized_keys file
+      fetch:
+        src: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+        dest: "./{{ inventory_hostname }}.txt"
+        flat: yes

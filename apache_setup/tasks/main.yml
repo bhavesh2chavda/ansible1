@@ -1,0 +1,59 @@
+---
+- name: Setup Apache and deploy site
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Git
+      ansible.builtin.yum:
+        name: git
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Git
+      ansible.builtin.apt:
+        name: git
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install Apache (httpd) for RedHat-based systems
+      ansible.builtin.yum:
+        name: httpd
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Apache (apache2) for Debian-based systems
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Start and enable Apache service
+      ansible.builtin.systemd:
+        name: "{{ 'httpd' if ansible_os_family == 'RedHat' else 'apache2' }}"
+        state: started
+        enabled: true
+
+    - name: Clone the test-site repository
+      ansible.builtin.git:
+        repo: 'https://github.com/bhavesh2chavda/test-site.git'
+        dest: '/tmp/test-site'
+        version: main
+
+    - name: Copy site files to Apache web directory
+      ansible.builtin.synchronize:
+        src: '/tmp/test-site/'
+        dest: '/var/www/html/'
+        recursive: yes
+      delegate_to: "{{ inventory_hostname }}"
+
+    - name: Set correct permissions
+      ansible.builtin.file:
+        path: /var/www/html
+        owner: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        group: "{{ 'apache' if ansible_os_family == 'RedHat' else 'www-data' }}"
+        recurse: yes
+
+    - name: Reload Apache to apply changes
+      ansible.builtin.systemd:
+        name: "{{ 'httpd' if ansible_os_family == 'RedHat' else 'apache2' }}"
+        state: restarted

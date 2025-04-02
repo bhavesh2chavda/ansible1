@@ -1,0 +1,15 @@
+---
+- name: Remove Old SSH Keys from All Servers
+  hosts: all
+  become: yes
+  vars:
+    old_public_keys:
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDcMKzHQiECqJG19xn/GCo0dWaPPJeHrrP5wZHZvah29s8RrcsiDsTJ4Az/WVb46iTX11cOmwOAxXSSG/dHe1YsOKOqNVqv8SnMwBXSP4YT6OWmlA7HRK0hRFmwpBDgBZ4ib2fRnEsR/jo+a4cP7WdKIxVF61iPIvLxzz3AOxD8WOsuBnWQBfeOXQqyVPwxy1rPOjPvCY1qyysrgf0blbZt/LnEyZDgQEO3Herhyyy9+ITbEY3noLxiS/91n3LOO5t/SL12lUt0VyDtbCAuf4SeZp480kVVlTndl2X1FioUql50065Tym1J6lfoosjErFOciT3K03QW/I8a23q9HfmmE+Gk3jZShBJefJ2CJ0ROxQ2j452F6sLQ5USc25+WQlURTYVTWSR4j8JU0EbxvwuJxSmsnsCXJ0y+2xnxD8JJFlP/xiXsiEqAi5SW6kEtEvoEee3dbj2yhlqfLuQ+1FxGsZ1xVs/e8/qhgX1Icwv/FpVqFmze7Pqu8bu6wsVfWOS5ViVO4lUJtHZ6wEiqFN0SLyYRfzPPDvoncUlxJ40wuPC2EwELNHKQq76W7jKUdQP/c9QaNIlAu/SuGjQQXdHVASPrrWP1dX1zBi6nkzNLRjNK7a0rR6aIa/4qdU27G3f3r2xV1RVPkfUaxL/bDzrkR0i9PqpSTNHxiqTQJ0Erjw== ssh@test"
+
+  tasks:
+    - name: Remove old keys (using each server's username)
+      ansible.builtin.authorized_key:
+        user: "{{ ansible_user }}"
+        key: "{{ item }}"
+        state: absent
+      loop: "{{ old_public_keys }}"

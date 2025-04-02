@@ -1,0 +1,14 @@
+---
+- name: Add New SSH Key to All Servers
+  hosts: all
+  become: yes
+  vars:
+    new_public_key: "{{ lookup('file', '~/.ssh/ssh-test.pub') }}"
+
+  tasks:
+    - name: Add the new SSH key (using each server's username)
+      ansible.builtin.authorized_key:
+        user: "{{ ansible_user  }}"
+        key: "{{ new_public_key }}"
+        state: present
+        exclusive: no

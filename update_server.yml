@@ -1,0 +1,18 @@
+---
+- name: Update Ubuntu Servers
+  hosts: ubuntu
+  become: yes
+  tasks:
+    - name: Update apt package list and upgrade packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+- name: Update RedHat Servers
+  hosts: redhat
+  become: yes
+  tasks:
+    - name: Update all packages using dnf
+      dnf:
+        name: "*"
+        state: latest

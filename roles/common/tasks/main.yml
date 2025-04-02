@@ -1,0 +1,23 @@
+---
+- name: Install Git
+  package:
+    name: git
+    state: present
+
+- name: Clone the test-site repository
+  ansible.builtin.git:
+    repo: 'https://github.com/bhavesh2chavda/test-site.git'
+    dest: '/tmp/test-site'
+    version: main
+
+- name: Copy site files to Apache web directory
+  ansible.builtin.synchronize:
+    src: '/tmp/test-site/'
+    dest: '/var/www/html/'
+    recursive: yes
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Reload Apache to apply changes
+  ansible.builtin.systemd:
+    name: "{{ apache_service_name }}"
+    state: restarted

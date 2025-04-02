@@ -1,0 +1,17 @@
+---
+- name: Fetch authorized_keys from all hosts
+  hosts: all
+  become: yes
+  tasks:
+    - name: Fetch authorized_keys content
+      ansible.builtin.slurp:
+        src: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+      register: authorized_keys_content
+      ignore_errors: yes
+
+    - name: Decode and save to local file
+      delegate_to: localhost
+      ansible.builtin.copy:
+        content: "{{ authorized_keys_content['content'] | b64decode }}"
+        dest: "./{{ inventory_hostname }}.txt"
+      when: authorized_keys_content['content'] is defined

@@ -1,0 +1,16 @@
+---
+- name: Setup Apache for RedHat systems
+  hosts: redhat
+  vars:
+    apache_service_name: httpd
+  roles:
+    - common
+    - redhat
+
+- name: Setup Apache for Debian systems
+  hosts: ubuntu
+  vars:
+    apache_service_name: apache2
+  roles:
+    - common
+    - debian
