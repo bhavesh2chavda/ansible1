@@ -1,0 +1,10 @@
+---
+- hosts: ubuntu
+  become: yes
+  roles:
+    - nginx
+
+- hosts: redhat
+  become: yes
+  roles:
+    - app

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CodeShare Room</title>
+  <style>
+    html, body, #editor {
+      margin: 0; padding: 0; height: 100%; width: 100%;
+    }
+  </style>
+  <script src="https://unpkg.com/monaco-editor@0.44.0/min/vs/loader.js"></script>
+</head>
+<body>
+  <div id="editor"></div>
+  <script>
+    const roomID = location.pathname.slice(1) || 'default'
+    const socket = new WebSocket(`ws://${location.host}/${roomID}`)
+
+    require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.44.0/min/vs' }})
+    require(['vs/editor/editor.main'], function () {
+      const editor = monaco.editor.create(document.getElementById('editor'), {
+        value: '',
+        language: 'javascript',
+        theme: 'vs-dark',
+        automaticLayout: true
+      })
+
+      let preventLoop = false
+
+      editor.onDidChangeModelContent(() => {
+        if (preventLoop) return
+        const code = editor.getValue()
+        socket.send(JSON.stringify({ code }))
+      })
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        if (data.type === 'init' || data.type === 'update') {
+          preventLoop = true
+          editor.setValue(data.code)
+          preventLoop = false
+        }
+      }
+    })
+  </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+---
+- name: Install Podman
+  package:
+    name: podman
+    state: present
+
+- name: Stop and remove existing container
+  shell: |
+    podman stop codeshare || true
+    podman rm codeshare || true
+
+- name: Prune unused images
+  shell: podman image prune -f
+
+- name: Prune unused volumes
+  shell: podman volume prune -f
+
+- name: Prune unused containers
+  shell: podman container prune -f
+
+- name: Clean all system temporary files
+  shell: rm -rf /var/tmp/* /tmp/*
+
+- name: Create app directory
+  file:
+    path: /home/bhavesh/codeshare
+    state: directory
+    owner: bhavesh
+    mode: '0755'
+
+- name: Copy application files
+  copy:
+    src: "{{ item }}"
+    dest: "/home/bhavesh/codeshare/{{ item }}"
+    owner: bhavesh
+  with_items:
+    - server.js
+    - package.json
+
+- name: Create rooms directory
+  file:
+    path: /home/bhavesh/codeshare/rooms
+    state: directory
+    owner: bhavesh
+    mode: '0755'
+
+- name: Set proper permissions for rooms directory
+  file:
+    path: /home/bhavesh/codeshare/rooms
+    owner: bhavesh
+    mode: '0777'
+
+- name: Create Dockerfile
+  copy:
+    dest: /home/bhavesh/codeshare/Dockerfile
+    content: |
+      FROM node:16
+      WORKDIR /app
+      COPY . .
+      RUN npm install
+      EXPOSE 3000
+      CMD ["node", "server.js"]
+
+- name: Build Podman image
+  command: podman build -t codeshare /home/bhavesh/codeshare
+  args:
+    chdir: /home/bhavesh/codeshare
+
+- name: Run the container
+  command: >
+    podman run -d --name codeshare -p 3000:3000
+    -v /home/bhavesh/codeshare:/app
+    -v /home/bhavesh/codeshare/rooms:/app/rooms
+    -w /app
+    localhost/codeshare

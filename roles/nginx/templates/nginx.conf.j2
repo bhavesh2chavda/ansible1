@@ -1,0 +1,21 @@
+events {}
+
+http {
+    upstream codeshare_backend {
+        server 20.51.127.253:3000;
+        server 20.51.120.125:3000;
+    }
+
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://codeshare_backend;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+}
